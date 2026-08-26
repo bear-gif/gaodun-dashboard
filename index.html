@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="zh-CN">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>高顿升学 · 移动端引流数据看板</title>
+    <link rel="stylesheet" href="/styles/main.css" />
+    <!-- ECharts: 使用国内可达的 jsdelivr 镜像 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  </head>
+  <body>
+    <div class="dashboard" id="dashboard">
+      <!-- 背景装饰层 -->
+      <div class="bg-grid" aria-hidden="true"></div>
+      <div class="bg-glow bg-glow--left" aria-hidden="true"></div>
+      <div class="bg-glow bg-glow--right" aria-hidden="true"></div>
+
+      <!-- 顶部 Header -->
+      <header class="header">
+        <div class="header__side header__side--left">
+          <div class="status-pill">
+            <span class="status-dot"></span>
+            <span>实时数据</span>
+          </div>
+          <div class="filter-group" id="filterGroup" role="tablist" aria-label="活动筛选">
+            <button class="filter-btn is-active" data-activity="ALL" role="tab">全部活动</button>
+            <button class="filter-btn filter-btn--gold" data-activity="千元礼包" role="tab">
+              <span class="star-gold">★</span>千元礼包
+            </button>
+            <button class="filter-btn" data-activity="内部专场讲座" role="tab">内部专场讲座</button>
+            <button class="filter-btn" data-activity="省份志愿群" role="tab">省份志愿群</button>
+            <button class="filter-btn" data-activity="小课系列活动" role="tab">小课系列活动</button>
+          </div>
+        </div>
+
+        <h1 class="header__title">
+          <span class="title-decor title-decor--left"></span>
+          高顿升学 · 移动端引流数据看板
+          <span class="title-decor title-decor--right"></span>
+        </h1>
+
+        <div class="header__side header__side--right">
+          <div class="update-time">
+            <span class="update-time__label">数据更新</span>
+            <span class="update-time__value" id="updateTime">--:--:--</span>
+          </div>
+          <div class="clock" id="clock">--:--:--</div>
+        </div>
+      </header>
+
+      <!-- KPI 行 -->
+      <section class="kpi-row" id="kpiRow">
+        <div class="kpi-card" style="--enter-delay:0ms">
+          <div class="kpi-card__bar"></div>
+          <div class="kpi-card__label">总成交额</div>
+          <div class="kpi-card__value" data-kind="amount" data-value="93136">
+            <span class="currency">¥</span><span class="num">0</span>
+          </div>
+          <div class="kpi-card__sub">累计成交金额（元）</div>
+        </div>
+
+        <div class="kpi-card" style="--enter-delay:80ms">
+          <div class="kpi-card__bar"></div>
+          <div class="kpi-card__label">总线索数</div>
+          <div class="kpi-card__value" data-kind="orders" data-value="648">
+            <span class="num">0</span>
+            <span class="trend trend--up">
+              <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M6 2 L11 8 L1 8 Z" fill="currentColor"/></svg>
+              12.4%
+            </span>
+          </div>
+          <div class="kpi-card__sub">较上周期环比</div>
+        </div>
+
+        <div class="kpi-card" style="--enter-delay:160ms">
+          <div class="kpi-card__bar"></div>
+          <div class="kpi-card__label">整体转化率</div>
+          <div class="kpi-card__value" data-kind="rate" data-value="5.71">
+            <span class="num">0</span><span class="unit">%</span>
+          </div>
+          <div class="progress">
+            <div class="progress__track"><div class="progress__fill" style="width:0%"></div></div>
+            <span class="progress__text">目标 6.5%</span>
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-card--gold" style="--enter-delay:240ms">
+          <span class="kpi-card__tag">亮点活动</span>
+          <div class="kpi-card__bar"></div>
+          <div class="kpi-card__label">
+            <span class="star-gold star-gold--lg">★</span>千元礼包成交额
+          </div>
+          <div class="kpi-card__value" data-kind="amount" data-value="47760">
+            <span class="currency">¥</span><span class="num">0</span>
+          </div>
+          <div class="kpi-card__sub">占总成交额 <b id="giftRatio">51.3%</b></div>
+        </div>
+      </section>
+
+      <!-- 主内容区 -->
+      <section class="main-grid">
+        <!-- 左：地图 -->
+        <div class="panel panel--map" style="--enter-delay:320ms">
+          <div class="panel__corner panel__corner--tl"></div>
+          <div class="panel__corner panel__corner--tr"></div>
+          <div class="panel__corner panel__corner--bl"></div>
+          <div class="panel__corner panel__corner--br"></div>
+
+          <div class="panel__header">
+            <div class="panel__title"><span class="panel__title-bar"></span>全国引流分布</div>
+            <div class="panel__actions">
+              <div class="seg-control" id="mapModeSeg">
+                <button class="seg-control__btn is-active" data-mode="heat">热度分布</button>
+                <button class="seg-control__btn" data-mode="efficiency">转化效率</button>
+              </div>
+              <button class="btn-ghost" id="mapBackBtn" hidden>
+                <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M10 3 L5 8 L10 13" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                返回全国
+              </button>
+            </div>
+          </div>
+          <div class="panel__body">
+            <div id="chartMap" class="chart chart--map"></div>
+            <div class="map-legend" id="mapLegend"></div>
+            <div class="map-breadcrumb" id="mapBreadcrumb">全国</div>
+          </div>
+        </div>
+
+        <!-- 右：活动排行 + 桑基图 -->
+        <div class="right-col">
+          <div class="panel panel--rank" style="--enter-delay:400ms">
+            <div class="panel__corner panel__corner--tl"></div>
+            <div class="panel__corner panel__corner--tr"></div>
+            <div class="panel__corner panel__corner--bl"></div>
+            <div class="panel__corner panel__corner--br"></div>
+            <div class="panel__header">
+              <div class="panel__title"><span class="panel__title-bar"></span>活动引流量排行 Top10</div>
+              <div class="panel__sub">单位：条</div>
+            </div>
+            <div class="panel__body">
+              <div id="chartRank" class="chart chart--rank"></div>
+            </div>
+          </div>
+
+          <div class="panel panel--sankey" style="--enter-delay:480ms">
+            <div class="panel__corner panel__corner--tl"></div>
+            <div class="panel__corner panel__corner--tr"></div>
+            <div class="panel__corner panel__corner--bl"></div>
+            <div class="panel__corner panel__corner--br"></div>
+            <div class="panel__header">
+              <div class="panel__title"><span class="panel__title-bar"></span>线索流转 · 省份 → 大团队</div>
+              <div class="panel__sub">线宽代表流量</div>
+            </div>
+            <div class="panel__body">
+              <div id="chartSankey" class="chart chart--sankey"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 底部区 -->
+      <section class="bottom-grid">
+        <div class="panel panel--combo" style="--enter-delay:560ms">
+          <div class="panel__corner panel__corner--tl"></div>
+          <div class="panel__corner panel__corner--tr"></div>
+          <div class="panel__corner panel__corner--bl"></div>
+          <div class="panel__corner panel__corner--br"></div>
+          <div class="panel__header">
+            <div class="panel__title"><span class="panel__title-bar"></span>活动转化能力分析</div>
+            <div class="legend-inline">
+              <span class="legend-inline__item"><i class="dot dot--blue"></i>线索数</span>
+              <span class="legend-inline__item"><i class="dot dot--coral"></i>转化率</span>
+            </div>
+          </div>
+          <div class="panel__body">
+            <div id="chartCombo" class="chart chart--combo"></div>
+          </div>
+        </div>
+
+        <div class="panel panel--city" style="--enter-delay:640ms">
+          <div class="panel__corner panel__corner--tl"></div>
+          <div class="panel__corner panel__corner--tr"></div>
+          <div class="panel__corner panel__corner--bl"></div>
+          <div class="panel__corner panel__corner--br"></div>
+          <div class="panel__header">
+            <div class="panel__title"><span class="panel__title-bar"></span>城市热力排名 Top10</div>
+            <div class="panel__sub"><span class="star-gold">★</span> 千元礼包重点城市</div>
+          </div>
+          <div class="panel__body">
+            <div id="chartCity" class="chart chart--city"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 顺序加载脚本：china-geo.js 必须在 charts.js 之前（提供内嵌中国地图 GeoJSON） -->
+    <script src="/scripts/china-geo.js"></script>
+    <script src="/scripts/data.js"></script>
+    <script src="/scripts/charts.js"></script>
+    <script src="/scripts/app.js"></script>
+  </body>
+</html>
