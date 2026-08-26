@@ -64,7 +64,7 @@ ul, ol { list-style: none; }
   min-width: 1280px;
   min-height: 720px;
   display: grid;
-  grid-template-rows: 8vh 18vh 140px 1fr 26vh;
+  grid-template-rows: 8vh 18vh 1fr 26vh;
   gap: var(--gap);
   padding: var(--gap);
   background:
@@ -584,16 +584,7 @@ ul, ol { list-style: none; }
 
 /* ---------- 主区域布局 ---------- */
 
-/* ---------- 活动分类 GMV 柱状图 ---------- */
-.gmv-chart-row {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: stretch;
-}
-.gmv-chart-row .panel {
-  width: 100%;
-}
+
 
 .main-grid {
   position: relative;
@@ -614,7 +605,7 @@ ul, ol { list-style: none; }
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: var(--gap);
   min-height: 0;
 }
@@ -815,16 +806,6 @@ ul, ol { list-style: none; }
       <!-- 主内容区 -->
       
       <!-- 活动分类 GMV 柱状图 -->
-      <section class="gmv-chart-row" id="gmvChartRow">
-        <div class="panel" style="--enter-delay:0ms">
-          <div class="panel__header">
-            <span class="panel__title">活动分类 GMV 分布</span>
-          </div>
-          <div class="panel__body">
-            <div id="chartGmvBar" class="chart" style="width:100%;height:100px;"></div>
-          </div>
-        </div>
-      </section>
 
       <section class="main-grid">
         <!-- 左：地图 -->
@@ -905,7 +886,20 @@ ul, ol { list-style: none; }
           </div>
         </div>
 
-        <div class="panel panel--city" style="--enter-delay:640ms">
+                <div class="panel panel--gmv" style="--enter-delay:600ms">
+          <div class="panel__corner panel__corner--tl"></div>
+          <div class="panel__corner panel__corner--tr"></div>
+          <div class="panel__corner panel__corner--bl"></div>
+          <div class="panel__corner panel__corner--br"></div>
+          <div class="panel__header">
+            <div class="panel__title"><span class="panel__title-bar"></span>活动分类 GMV 分布</div>
+          </div>
+          <div class="panel__body">
+            <div id="chartGmvBar" class="chart chart--gmv"></div>
+          </div>
+        </div>
+
+<div class="panel panel--city" style="--enter-delay:640ms">
           <div class="panel__corner panel__corner--tl"></div>
           <div class="panel__corner panel__corner--tr"></div>
           <div class="panel__corner panel__corner--bl"></div>
