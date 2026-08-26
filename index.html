@@ -753,6 +753,7 @@ ul, ol { list-style: none; }
 
       <!-- KPI 行 -->
       <section class="kpi-row" id="kpiRow">
+        <div class="kpi-cards">
         <div class="kpi-card" style="--enter-delay:0ms">
           <div class="kpi-card__bar"></div>
           <div class="kpi-card__label">总成交额</div>
@@ -799,7 +800,9 @@ ul, ol { list-style: none; }
           <div class="kpi-card__sub">占总成交额 <b id="giftRatio">51.3%</b></div>
         </div>
             
-    </section>
+    
+        </div>
+</section>
 
       <!-- 活动分类 GMV 标签 -->
 
@@ -2486,6 +2489,7 @@ ul, ol { list-style: none; }
     state.charts.sankey.render(data);
     state.charts.combo.render(data);
     state.charts.city.render(data);
+    state.charts.gmvBar.render(data);
   }
 
   // ---------- 绑定交互 ----------
