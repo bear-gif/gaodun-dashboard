@@ -622,3 +622,71 @@ ul, ol { list-style: none; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-thumb { background: rgba(0,163,255,0.3); border-radius: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------- 活动分类 GMV 标签 ---------- */
+.gmv-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+.gmv-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--text-2);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(0,163,255,0.15);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+.gmv-tag:hover {
+  color: var(--text-1);
+  background: rgba(0,163,255,0.10);
+  border-color: rgba(0,163,255,0.35);
+}
+.gmv-tag.is-active {
+  color: var(--text-1);
+  background: rgba(0,163,255,0.15);
+  border-color: rgba(0,163,255,0.5);
+  box-shadow: 0 0 12px rgba(0,163,255,0.2);
+}
+.gmv-tag--gold {
+  color: var(--gold);
+  border-color: rgba(255,215,0,0.25);
+  background: rgba(255,215,0,0.04);
+}
+.gmv-tag--gold:hover {
+  background: rgba(255,215,0,0.10);
+  border-color: rgba(255,215,0,0.45);
+  color: var(--gold);
+}
+.gmv-tag--gold.is-active {
+  background: rgba(255,215,0,0.15);
+  border-color: rgba(255,215,0,0.6);
+  box-shadow: 0 0 12px rgba(255,215,0,0.2);
+}
+.gmv-tag__star {
+  font-size: 10px;
+  color: var(--gold);
+}
+.gmv-tag__label {
+  letter-spacing: 0.5px;
+}
+.gmv-tag__value {
+  font-family: var(--font-num);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-1);
+  margin-left: 2px;
+}
+.gmv-tag__value--gold {
+  color: var(--gold);
+}
