@@ -250,6 +250,7 @@
         charts.sankey.chart.resize();
         charts.combo.chart.resize();
         charts.city.chart.resize();
+        charts.gmvBar.chart.resize();
       });
     });
   }
@@ -265,7 +266,8 @@
       rank: C.createRankChart($('#chartRank')),
       sankey: C.createSankeyChart($('#chartSankey')),
       combo: C.createComboChart($('#chartCombo')),
-      city: C.createCityChart($('#chartCity'))
+      city: C.createCityChart($('#chartCity')),
+      gmvBar: C.createGmvBarChart($('#chartGmvBar'))
     };
     state.charts = charts;
 
