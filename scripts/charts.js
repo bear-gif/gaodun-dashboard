@@ -742,7 +742,121 @@
     function render(data) {
       chart.setOption(buildOption(data), true);
     }
+  
+  // ============================================================
+  // 6. 活动分类 GMV 柱状图
+  // ============================================================
+  function createGmvBarChart(dom) {
+    const chart = echarts.init(dom);
+
+    const CATEGORIES = [
+      { name: '千元礼包', highlight: true },
+      { name: '省份志愿群', highlight: false },
+      { name: '内部专场讲座', highlight: false },
+      { name: '小课系列活动', highlight: false }
+    ];
+
+    function buildOption(data) {
+      const activityRank = data.activityRank || [];
+      const items = CATEGORIES.map(function (cat) {
+        const found = activityRank.find(function (a) { return a.name === cat.name; });
+        return {
+          name: cat.name,
+          amount: found ? found.amount : 0,
+          highlight: cat.highlight
+        };
+      });
+      // 按金额降序
+      items.sort(function (a, b) { return b.amount - a.amount; });
+      const names = items.map(function (it) { return it.name; });
+      const amounts = items.map(function (it) { return it.amount; });
+
+      return {
+        animationDuration: 800,
+        animationEasing: 'cubicOut',
+        grid: { left: 10, right: 20, top: 12, bottom: 28, containLabel: false },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(0,163,255,0.06)' } },
+          backgroundColor: 'rgba(11,26,48,0.92)',
+          borderColor: 'rgba(0,163,255,0.3)',
+          borderWidth: 1,
+          textStyle: { color: '#E6F4FF', fontSize: 12 },
+          formatter: function (params) {
+            if (!params || !params.length) return '';
+            const p = params[0];
+            return '<div style="font-weight:600;margin-bottom:4px;">' + p.name + '</div>'
+              + '<div style="color:#8AA8C8;">GMV：<b style="color:#00A3FF;font-family:DIN Alternate;">¥' + formatMoney(p.value) + '</b></div>';
+          }
+        },
+        xAxis: {
+          type: 'category',
+          data: names,
+          axisLine: { lineStyle: { color: 'rgba(0,163,255,0.2)' } },
+          axisTick: { show: false },
+          axisLabel: {
+            color: '#8AA8C8',
+            fontSize: 11,
+            interval: 0,
+            formatter: function (val) {
+              if (val === '千元礼包') return '★ ' + val;
+              return val.length > 6 ? val.substring(0, 5) + '…' : val;
+            }
+          }
+        },
+        yAxis: {
+          type: 'value',
+          axisLine: { show: false },
+          axisTick: { show: false },
+          splitLine: { lineStyle: { color: 'rgba(0,163,255,0.08)', type: 'dashed' } },
+          axisLabel: {
+            color: '#5C7595',
+            fontSize: 10,
+            formatter: function (v) { return v >= 10000 ? (v / 10000).toFixed(1) + 'w' : v; }
+          }
+        },
+        series: [{
+          type: 'bar',
+          data: amounts.map(function (amt, i) {
+            const isGold = items[i].highlight;
+            return {
+              value: amt,
+              itemStyle: {
+                color: isGold
+                  ? new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                      { offset: 0, color: '#FFD700' },
+                      { offset: 1, color: 'rgba(201,162,39,0.5)' }
+                    ])
+                  : new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                      { offset: 0, color: 'rgba(0,163,255,0.9)' },
+                      { offset: 1, color: 'rgba(0,163,255,0.35)' }
+                    ]),
+                borderRadius: [4, 4, 0, 0],
+                shadowColor: isGold ? 'rgba(255,215,0,0.4)' : 'rgba(0,163,255,0.3)',
+                shadowBlur: 8
+              }
+            };
+          }),
+          barWidth: '50%',
+          label: {
+            show: true,
+            position: 'top',
+            color: '#8AA8C8',
+            fontSize: 11,
+            fontFamily: 'DIN Alternate',
+            formatter: function (p) { return '¥' + formatMoney(p.value); }
+          }
+        }]
+      };
+    }
+
+    function render(data) {
+      chart.setOption(buildOption(data), true);
+    }
     return { chart: chart, render: render };
+  }
+
+  return { chart: chart, render: render };
   }
 
   // ============================================================
@@ -758,6 +872,7 @@
     createRankChart: createRankChart,
     createSankeyChart: createSankeyChart,
     createComboChart: createComboChart,
-    createCityChart: createCityChart
+    createCityChart: createCityChart,
+    createGmvBarChart: createGmvBarChart
   };
 })(window);
