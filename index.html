@@ -2178,7 +2178,9 @@ ul, ol { list-style: none; }
     function render(data) {
       chart.setOption(buildOption(data), true);
     }
-  
+    return { chart: chart, render: render };
+  }
+
   // ============================================================
   // 6. 活动分类 GMV 柱状图
   // ============================================================
@@ -2292,8 +2294,6 @@ ul, ol { list-style: none; }
     return { chart: chart, render: render };
   }
 
-  return { chart: chart, render: render };
-  }
 
   // ============================================================
   // 导出
