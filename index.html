@@ -64,7 +64,7 @@ ul, ol { list-style: none; }
   min-width: 1280px;
   min-height: 720px;
   display: grid;
-  grid-template-rows: 8vh 18vh 1fr 26vh;
+  grid-template-rows: 8vh 18vh 140px 1fr 26vh;
   gap: var(--gap);
   padding: var(--gap);
   background:
@@ -250,9 +250,9 @@ ul, ol { list-style: none; }
 .kpi-row {
   position: relative;
   z-index: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap);
 }
 
 .kpi-card {
@@ -575,6 +575,18 @@ ul, ol { list-style: none; }
 }
 
 /* ---------- 主区域布局 ---------- */
+
+/* ---------- 活动分类 GMV 柱状图 ---------- */
+.gmv-chart-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+}
+.gmv-chart-row .panel {
+  width: 100%;
+}
+
 .main-grid {
   position: relative;
   z-index: 2;
@@ -632,54 +644,7 @@ ul, ol { list-style: none; }
 
     
 
-.kpi-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--gap);
-  flex: 1;
-  min-height: 0;
-}
-/* ---------- 活动分类 GMV 标签 ---------- */
-.gmv-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 2px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  min-height: 28px;
-}
-.gmv-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
-  font-size: 12px;
-  color: var(--text-2);
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(0,163,255,0.15);
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  white-space: nowrap;
-  user-select: none;
-}
-.gmv-tag:hover {
-  color: var(--text-1);
-  background: rgba(0,163,255,0.10);
-  border-color: rgba(0,163,255,0.35);
-}
-.gmv-tag.is-active {
-  color: var(--text-1);
-  background: rgba(0,163,255,0.15);
-  border-color: rgba(0,163,255,0.5);
-  box-shadow: 0 0 12px rgba(0,163,255,0.2);
-}
-.gmv-tag--gold {
-  color: var(--gold);
-  border-color: rgba(255,215,0,0.25);
-  background: rgba(255,215,0,0.04);
-}
+
 .gmv-tag--gold:hover {
   background: rgba(255,215,0,0.10);
   border-color: rgba(255,215,0,0.45);
@@ -751,7 +716,6 @@ ul, ol { list-style: none; }
 
       <!-- KPI 行 -->
       <section class="kpi-row" id="kpiRow">
-        <div class="kpi-cards">
         <div class="kpi-card" style="--enter-delay:0ms">
           <div class="kpi-card__bar"></div>
           <div class="kpi-card__label">总成交额</div>
@@ -797,21 +761,25 @@ ul, ol { list-style: none; }
           </div>
           <div class="kpi-card__sub">占总成交额 <b id="giftRatio">51.3%</b></div>
         </div>
-            </div>
-
-      <!-- 活动分类 GMV 标签 -->
-      <div class="gmv-row" id="gmvRow">
-        <span class="gmv-tag is-active" data-activity="ALL" id="gmvAll">全部活动 <b>¥0</b></span>
-        <span class="gmv-tag gmv-tag--gold" data-activity="千元礼包" id="gmvGift"><span style="color:#FFD700">★</span>千元礼包 <b>¥0</b></span>
-        <span class="gmv-tag" data-activity="内部专场讲座" id="gmvLecture">内部专场讲座 <b>¥0</b></span>
-        <span class="gmv-tag" data-activity="省份志愿群" id="gmvProvince">省份志愿群 <b>¥0</b></span>
-        <span class="gmv-tag" data-activity="小课系列活动" id="gmvMini">小课系列活动 <b>¥0</b></span>
-      </div>
+            
     </section>
 
       <!-- 活动分类 GMV 标签 -->
 
       <!-- 主内容区 -->
+      
+      <!-- 活动分类 GMV 柱状图 -->
+      <section class="gmv-chart-row" id="gmvChartRow">
+        <div class="panel" style="--enter-delay:0ms">
+          <div class="panel__header">
+            <span class="panel__title">活动分类 GMV 分布</span>
+          </div>
+          <div class="panel__body">
+            <div id="chartGmvBar" class="chart" style="width:100%;height:100px;"></div>
+          </div>
+        </div>
+      </section>
+
       <section class="main-grid">
         <!-- 左：地图 -->
         <div class="panel panel--map" style="--enter-delay:320ms">
@@ -2271,54 +2239,8 @@ ul, ol { list-style: none; }
   }
 
   // ---------- GMV 分类标签渲染 ----------
-  function renderGmvTags(kpi, activityRank) {
-    // 使用 activityRank 获取各分类 GMV（权威值）
-    var amounts = {};
-    activityRank.forEach(function(a) {
-      amounts[a.name] = a.amount;
-    });
-    
-    var total = 0;
-    activityRank.forEach(function(a) { total += a.amount; });
-    
-    function fmt(n) { return '¥' + Math.round(n).toLocaleString('en-US'); }
-    
-    var allEl = document.getElementById('gmvAll');
-    var giftEl = document.getElementById('gmvGift');
-    var lectureEl = document.getElementById('gmvLecture');
-    var provinceEl = document.getElementById('gmvProvince');
-    var miniEl = document.getElementById('gmvMini');
-    
-    if (allEl) allEl.textContent = fmt(total);
-    if (giftEl) giftEl.textContent = fmt(amounts['千元礼包'] || 0);
-    if (lectureEl) lectureEl.textContent = fmt(amounts['内部专场讲座'] || 0);
-    if (provinceEl) provinceEl.textContent = fmt(amounts['省份志愿群'] || 0);
-    if (miniEl) miniEl.textContent = fmt(amounts['小课系列活动'] || 0);
-  }
 
   // ---------- 同步筛选器与 GMV 标签的激活状态 ----------
-  function syncActiveState(activity) {
-    // 同步 filter buttons
-    var group = document.getElementById('filterGroup');
-    if (group) {
-      var btns = group.querySelectorAll('.filter-btn');
-      for (var i = 0; i < btns.length; i++) {
-        var a = btns[i].getAttribute('data-activity');
-        if (a === activity) btns[i].classList.add('is-active');
-        else btns[i].classList.remove('is-active');
-      }
-    }
-    // 同步 gmv tags
-    var gmvRow = document.getElementById('gmvRow');
-    if (gmvRow) {
-      var tags = gmvRow.querySelectorAll('.gmv-tag');
-      for (var j = 0; j < tags.length; j++) {
-        var a2 = tags[j].getAttribute('data-activity');
-        if (a2 === activity) tags[j].classList.add('is-active');
-        else tags[j].classList.remove('is-active');
-      }
-    }
-  }
 
   // ---------- 地图图例 ----------
   function updateMapLegend(mode) {
@@ -2347,8 +2269,6 @@ ul, ol { list-style: none; }
 
     // KPI
     renderKpi(data.kpi);
-    renderGmvTags(data.kpi, data.activityRank);
-    syncActiveState(state.activity);
 
     // 同步地图的活动
     state.charts.map.setActivity(state.activity);
@@ -2360,6 +2280,7 @@ ul, ol { list-style: none; }
     state.charts.sankey.render(data);
     state.charts.combo.render(data);
     state.charts.city.render(data);
+    state.charts.gmvBar.render(data);
   }
 
   // ---------- 绑定交互 ----------
@@ -2374,69 +2295,6 @@ ul, ol { list-style: none; }
       state.activity = act;
       renderAll();
     });
-
-    // GMV 标签点击筛选
-    const gmvRow = document.getElementById('gmvRow');
-    if (gmvRow) {
-      gmvRow.addEventListener('click', function (e) {
-        const tag = e.target.closest('.gmv-tag');
-        if (!tag) return;
-        const act = tag.getAttribute('data-activity');
-        if (act === state.activity) return;
-        state.activity = act;
-        renderAll();
-      });
-    }
-  }
-
-  function bindMapMode() {
-    const seg = $('#mapModeSeg');
-    seg.addEventListener('click', function (e) {
-      const btn = e.target.closest('.seg-control__btn');
-      if (!btn) return;
-      const mode = btn.getAttribute('data-mode');
-      if (mode === state.mapMode) return;
-      $all('.seg-control__btn', seg).forEach(function (b) { b.classList.remove('is-active'); });
-      btn.classList.add('is-active');
-      state.mapMode = mode;
-      updateMapLegend(mode);
-      state.charts.map.setMode(mode);
-    });
-  }
-
-  function bindMapBack() {
-    const btn = $('#mapBackBtn');
-    const breadcrumb = $('#mapBreadcrumb');
-    state.charts.map.chart.on('click', function () {
-      // createMapChart 已处理下钻；这里只更新 UI 状态
-      setTimeout(function () {
-        const s = state.charts.map.getState();
-        if (s.level === 'province') {
-          btn.hidden = false;
-          updateBreadcrumb('全国 / ' + s.currentProvince);
-        }
-      }, 50);
-    });
-
-    btn.addEventListener('click', function () {
-      state.charts.map.backToCountry();
-      btn.hidden = true;
-      updateBreadcrumb('全国');
-    });
-  }
-
-  function bindResize(charts) {
-    let timer = null;
-    window.addEventListener('resize', function () {
-      if (timer) cancelAnimationFrame(timer);
-      timer = requestAnimationFrame(function () {
-        charts.map.chart.resize();
-        charts.rank.chart.resize();
-        charts.sankey.chart.resize();
-        charts.combo.chart.resize();
-        charts.city.chart.resize();
-      });
-    });
   }
 
   // ---------- 初始化 ----------
@@ -2450,7 +2308,8 @@ ul, ol { list-style: none; }
       rank: C.createRankChart($('#chartRank')),
       sankey: C.createSankeyChart($('#chartSankey')),
       combo: C.createComboChart($('#chartCombo')),
-      city: C.createCityChart($('#chartCity'))
+      city: C.createCityChart($('#chartCity')),
+      gmvBar: C.createGmvBarChart($('#chartGmvBar'))
     };
     state.charts = charts;
 
@@ -2470,7 +2329,22 @@ ul, ol { list-style: none; }
     bindFilter();
     bindMapMode();
     bindMapBack();
-    bindResize(charts);
+    function bindResize(charts) {
+    let timer = null;
+    window.addEventListener('resize', function () {
+      if (timer) cancelAnimationFrame(timer);
+      timer = requestAnimationFrame(function () {
+        charts.map.chart.resize();
+        charts.rank.chart.resize();
+        charts.sankey.chart.resize();
+        charts.combo.chart.resize();
+        charts.city.chart.resize();
+        charts.gmvBar.chart.resize();
+      });
+    });
+  }
+
+  bindResize(charts);
   }
 
   if (document.readyState === 'loading') {
