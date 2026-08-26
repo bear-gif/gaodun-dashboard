@@ -4,6 +4,7 @@
  *  - 加载中国地图 GeoJSON
  *  - 绑定筛选器、模式切换、下钻返回
  *  - KPI count-up 动画
+ *  - GMV 分类标签渲染与联动筛选
  *  - 窗口 resize 监听
  */
 (function () {
@@ -52,6 +53,7 @@
   function formatInt(n) { return Math.round(n).toLocaleString('en-US'); }
   function formatMoneyNum(n) { return Math.round(n).toLocaleString('en-US'); }
   function formatRate(n) { return n.toFixed(2); }
+  function formatMoney(n) { return '¥' + Math.round(n).toLocaleString('en-US'); }
 
   // ---------- KPI 渲染 ----------
   let previousKpi = { totalAmount: 0, totalOrders: 0, overallRate: 0, giftAmount: 0 };
@@ -82,6 +84,53 @@
     previousKpi = Object.assign({}, kpi);
   }
 
+  // ---------- GMV 分类标签渲染 ----------
+  function renderGmvTags(kpi, activityRank) {
+    const amounts = {};
+    activityRank.forEach(function(a) {
+      amounts[a.name] = a.amount;
+    });
+
+    let total = 0;
+    activityRank.forEach(function(a) { total += a.amount; });
+
+    const allEl = document.getElementById('gmvAll');
+    const giftEl = document.getElementById('gmvGift');
+    const lectureEl = document.getElementById('gmvLecture');
+    const provinceEl = document.getElementById('gmvProvince');
+    const miniEl = document.getElementById('gmvMini');
+
+    if (allEl) allEl.textContent = formatMoney(total);
+    if (giftEl) giftEl.textContent = formatMoney(amounts['千元礼包'] || 0);
+    if (lectureEl) lectureEl.textContent = formatMoney(amounts['内部专场讲座'] || 0);
+    if (provinceEl) provinceEl.textContent = formatMoney(amounts['省份志愿群'] || 0);
+    if (miniEl) miniEl.textContent = formatMoney(amounts['小课系列活动'] || 0);
+  }
+
+  // ---------- 同步筛选器与 GMV 标签的激活状态 ----------
+  function syncActiveState(activity) {
+    // 同步 filter buttons
+    const group = document.getElementById('filterGroup');
+    if (group) {
+      const btns = group.querySelectorAll('.filter-btn');
+      for (let i = 0; i < btns.length; i++) {
+        const a = btns[i].getAttribute('data-activity');
+        if (a === activity) btns[i].classList.add('is-active');
+        else btns[i].classList.remove('is-active');
+      }
+    }
+    // 同步 gmv tags
+    const gmvRow = document.getElementById('gmvRow');
+    if (gmvRow) {
+      const tags = gmvRow.querySelectorAll('.gmv-tag');
+      for (let j = 0; j < tags.length; j++) {
+        const a2 = tags[j].getAttribute('data-activity');
+        if (a2 === activity) tags[j].classList.add('is-active');
+        else tags[j].classList.remove('is-active');
+      }
+    }
+  }
+
   // ---------- 地图图例 ----------
   function updateMapLegend(mode) {
     const legend = $('#mapLegend');
@@ -110,6 +159,12 @@
     // KPI
     renderKpi(data.kpi);
 
+    // GMV 标签
+    renderGmvTags(data.kpi, data.activityRank);
+
+    // 同步筛选器与 GMV 标签激活状态
+    syncActiveState(state.activity);
+
     // 同步地图的活动
     state.charts.map.setActivity(state.activity);
 
@@ -131,12 +186,22 @@
       const act = btn.getAttribute('data-activity');
       if (act === state.activity) return;
 
-      $all('.filter-btn', group).forEach(function (b) { b.classList.remove('is-active'); });
-      btn.classList.add('is-active');
-
       state.activity = act;
       renderAll();
     });
+
+    // GMV 标签点击筛选
+    const gmvRow = document.getElementById('gmvRow');
+    if (gmvRow) {
+      gmvRow.addEventListener('click', function (e) {
+        const tag = e.target.closest('.gmv-tag');
+        if (!tag) return;
+        const act = tag.getAttribute('data-activity');
+        if (act === state.activity) return;
+        state.activity = act;
+        renderAll();
+      });
+    }
   }
 
   function bindMapMode() {
