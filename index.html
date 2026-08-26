@@ -1697,8 +1697,20 @@ ul, ol { list-style: none; }
           aspectScale: 0.85,
           layoutCenter: ['50%', '52%'],
           layoutSize: '115%',
-          label: { show: false },
-          emphasis: { label: { show: true, color: '#fff', fontSize: 10 } },
+          label: {
+            show: true,
+            color: '#fff',
+            fontSize: 9,
+            fontWeight: 500,
+            textBorderColor: 'rgba(0,0,0,0.6)',
+            textBorderWidth: 2,
+            formatter: function (p) {
+              var n = p.name || '';
+              if (n.length > 3) n = n.replace(/(市|地区|自治州|州)$/,'');
+              return n.length > 4 ? n.slice(0,3)+'…' : n;
+            }
+          },
+          emphasis: { label: { show: true, color: '#fff', fontSize: 11, fontWeight: 700 } },
           itemStyle: {
             areaColor: 'rgba(255,255,255,0.02)',
             borderColor: 'rgba(0,163,255,0.25)'
