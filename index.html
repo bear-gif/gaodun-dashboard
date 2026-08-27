@@ -264,7 +264,7 @@ ul, ol { list-style: none; }
 
 .kpi-card {
   position: relative;
-  padding: 18px 22px 16px 26px;
+  padding: 10px 22px 8px 26px;
   border-radius: 6px;
   background:
     linear-gradient(135deg, rgba(0,163,255,0.18) 0%, rgba(0,163,255,0.02) 60%),
@@ -301,7 +301,7 @@ ul, ol { list-style: none; }
   font-size: 13px;
   color: var(--text-2);
   letter-spacing: 1px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -311,7 +311,7 @@ ul, ol { list-style: none; }
   align-items: baseline;
   gap: 6px;
   font-family: var(--font-num);
-  font-size: 38px;
+  font-size: 32px;
   font-weight: 600;
   color: var(--text-1);
   line-height: 1.1;
@@ -319,14 +319,14 @@ ul, ol { list-style: none; }
   letter-spacing: -0.02em;
 }
 .kpi-card__value .currency {
-  font-size: 20px;
+  font-size: 16px;
   color: var(--primary);
   margin-right: 2px;
 }
 .kpi-card__value .unit { font-size: 20px; color: var(--text-2); margin-left: 2px; }
 .kpi-card__value .num { font-variant-numeric: tabular-nums; }
 .kpi-card__sub {
-  margin-top: 8px;
+  margin-top: 4px;
   font-size: 12px;
   color: var(--text-3);
   letter-spacing: 0.5px;
@@ -589,7 +589,7 @@ ul, ol { list-style: none; }
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: 2fr 5fr 3fr;
+  grid-template-columns: 3fr 5fr 3fr;
   gap: var(--gap);
   min-height: 0;
 }
@@ -630,13 +630,13 @@ ul, ol { list-style: none; }
 @media (min-width: 1920px) {
   .dashboard { font-size: 15px; }
   .header__title { font-size: 30px; }
-  .kpi-card__value { font-size: 42px; }
+  .kpi-card__value { font-size: 36px; }
   .filter-btn { font-size: 14px; padding: 7px 16px; }
 }
 @media (min-width: 2560px) {
   .dashboard { font-size: 16px; }
   .header__title { font-size: 34px; }
-  .kpi-card__value { font-size: 48px; }
+  .kpi-card__value { font-size: 40px; }
 }
 
 /* 滚动条 */
@@ -2307,10 +2307,10 @@ ul, ol { list-style: none; }
     const chart = echarts.init(dom);
 
     var COLOR_MAP = {
-      '千元礼包': '#FFD700',
-      '内部专场讲座': '#00A3FF',
-      '省份志愿群': '#2EE6A6',
-      '小课系列活动': '#FF7A45'
+      '千元礼包': '#F5A623',
+      '内部专场讲座': '#4A90D9',
+      '省份志愿群': '#7ED321',
+      '小课系列活动': '#9B59B6'
     };
 
     function buildOption(data) {
