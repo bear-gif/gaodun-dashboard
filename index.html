@@ -1016,6 +1016,8 @@ ul, ol { list-style: none; }
 })(window);
 
 </script>
+    
+    
     <script>
 /**
  * 高顿高报 · 引流数据驾驶舱 - 内嵌数据模块
@@ -1566,8 +1568,6 @@ ul, ol { list-style: none; }
   }
 })(window);
 
-</script>
-    <script>
 /**
  * ECharts 图表模块：地图 / 活动排行 / 桑基图 / 组合图 / 城市 Top
  * 所有图表实例通过 DashboardCharts 命名空间暴露给 app.js。
@@ -1745,8 +1745,7 @@ ul, ol { list-style: none; }
               var n = (p.name || '').replace(/(省|市|自治区|壮族|回族|维吾尔|特别行政区)/g, '');
               var v = p.value;
               if (!v && v !== 0) return n;
-              return n + '
-' + v;
+              return n + '\n' + v;
             }
           },
           itemStyle: {
@@ -2411,8 +2410,7 @@ ul, ol { list-style: none; }
             fontFamily: 'DIN Alternate',
             formatter: function (p) {
               var pct = total > 0 ? (p.value / total * 100).toFixed(1) : '0.0';
-              return p.name + '
-' + pct + '%';
+              return p.name + '\n' + pct + '%';
             }
           },
           labelLine: {
@@ -2548,8 +2546,6 @@ ul, ol { list-style: none; }
   };
 })(window);
 
-</script>
-    <script>
 /**
  * 驾驶舱主入口：
  *  - 初始化所有 ECharts 实例
