@@ -1670,6 +1670,8 @@ ul, ol { list-style: none; }
         };
       });
 
+      var totalOrders = data.provinces.reduce(function(s, p) { return s + p.orders; }, 0) || 1;
+
       return {
         animationDuration: 800,
         animationEasing: 'cubicOut',
@@ -1721,7 +1723,8 @@ ul, ol { list-style: none; }
               var n = (p.name || '').replace(/(省|市|自治区|壮族|回族|维吾尔|特别行政区)/g, '');
               var v = p.value;
               if (!v && v !== 0) return n;
-              return n + '\n' + v;
+              var pct = totalOrders > 0 ? (v / totalOrders * 100).toFixed(1) : '0.0';
+              return n + '\n' + pct + '%';
             }
           },
           itemStyle: {
