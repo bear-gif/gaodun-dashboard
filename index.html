@@ -1493,51 +1493,27 @@ ul, ol { list-style: none; }
     buildMonthlyTrend: buildMonthlyTrend
   };
 
-  // ---------- 月度线索趋势（按活动分类，确定性生成，总和与权威KPI对齐） ----------
+  // ---------- 月度线索趋势（按活动分类，基于原始数据按月聚合） ----------
+  // 数据源：按"下单时间"字段聚合，活动分类按"投放计划"字段映射
   // 5个月：2026-04 ~ 2026-08，4个活动分类
   function buildMonthlyTrend() {
     var MONTHS = ['2026-04', '2026-05', '2026-06', '2026-07', '2026-08'];
-    // 各活动权威总量
-    var ACT_TOTALS = {
-      '千元礼包': 359,
-      '内部专场讲座': 136,
-      '省份志愿群': 88,
-      '小课系列活动': 65
-    };
-    var ACT_NAMES = ['千元礼包', '内部专场讲座', '省份志愿群', '小课系列活动'];
 
-    // 各活动的月度分布权重（确定性，模拟不同活动节奏差异）
-    // 千元礼包：逐月上升（暑期加大投入）
-    // 内部专场讲座：前期高，后期回落
-    // 省份志愿群：中间月份突出（高考季）
-    // 小课系列活动：相对平稳，略有波动
-    var MONTH_WEIGHTS = {
-      '千元礼包':     [0.10, 0.15, 0.20, 0.25, 0.30],
-      '内部专场讲座': [0.28, 0.25, 0.20, 0.15, 0.12],
-      '省份志愿群':   [0.10, 0.18, 0.30, 0.25, 0.17],
-      '小课系列活动': [0.18, 0.22, 0.20, 0.22, 0.18]
+    // 基于原始数据按"下单时间"逐月统计的真实值
+    // 千元礼包（投放计划含"千元礼包"）：[58, 64, 191, 43, 3] 合计359
+    // 内部专场讲座（投放计划含讲座/专场等）：[28, 61, 36, 11, 0] 合计136
+    // 省份志愿群（投放计划含"省份志愿群"）：[88, 0, 0, 0, 0] 合计88
+    // 小课系列活动（投放计划含"小课"）：[7, 26, 26, 6, 0] 合计65
+    var MONTHLY_DATA = {
+      '千元礼包':     [58, 64, 191, 43, 3],
+      '内部专场讲座': [28, 61, 36, 11, 0],
+      '省份志愿群':   [88, 0, 0, 0, 0],
+      '小课系列活动': [7, 26, 26, 6, 0]
     };
 
     var result = {};
-    ACT_NAMES.forEach(function (actName) {
-      var total = ACT_TOTALS[actName];
-      var weights = MONTH_WEIGHTS[actName];
-      var wSum = 0;
-      for (var i = 0; i < weights.length; i++) wSum += weights[i];
-
-      var values = [];
-      var allocated = 0;
-      for (var j = 0; j < MONTHS.length; j++) {
-        var v;
-        if (j === MONTHS.length - 1) {
-          v = total - allocated;
-        } else {
-          v = Math.round(total * weights[j] / wSum);
-        }
-        values.push(Math.max(0, v));
-        allocated += Math.max(0, v);
-      }
-      result[actName] = values;
+    Object.keys(MONTHLY_DATA).forEach(function (actName) {
+      result[actName] = MONTHLY_DATA[actName];
     });
 
     return { months: MONTHS, series: result };
