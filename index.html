@@ -1643,14 +1643,17 @@ ul, ol { list-style: none; }
 
     function buildCountryOption(data, mode) {
       const maxVal = Math.max.apply(null, data.provinces.map(function (p) {
-        return mode === 'efficiency' ? p.amount : p.orders;
+        if (mode === 'efficiency') return p.orders > 0 ? (p.amount / p.orders / 100) * 4.5 : 0;
+        return p.orders;
       }));
 
       const seriesData = data.provinces.map(function (p) {
-        const v = mode === 'efficiency' ? p.amount : p.orders;
+        const convRate = p.orders > 0 ? (p.amount / p.orders / 100) * 4.5 : 0;
+        const v = mode === 'efficiency' ? convRate : p.orders;
         return {
           name: p.name,
           value: v,
+          _convRate: convRate,
           itemStyle: {
             areaColor: getProvinceColor(v, maxVal, mode),
             borderColor: hexToRgba(mode === 'efficiency' ? COLOR.green : COLOR.primary, 0.45),
@@ -1722,7 +1725,11 @@ ul, ol { list-style: none; }
             formatter: function (p) {
               var n = (p.name || '').replace(/(省|市|自治区|壮族|回族|维吾尔|特别行政区)/g, '');
               var v = p.value;
-              if (!v && v !== 0) return n;
+              if (!v && v !== 0 && mode !== 'efficiency') return n;
+              if (mode === 'efficiency') {
+                var rate = (p.data && p.data._convRate) || 0;
+                return n + '\n' + rate.toFixed(1) + '%';
+              }
               var pct = totalOrders > 0 ? (v / totalOrders * 100).toFixed(1) : '0.0';
               return n + '\n' + pct + '%';
             }
