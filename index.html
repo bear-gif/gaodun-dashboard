@@ -1016,8 +1016,6 @@ ul, ol { list-style: none; }
 })(window);
 
 </script>
-    
-    
     <script>
 /**
  * 高顿高报 · 引流数据驾驶舱 - 内嵌数据模块
@@ -1514,65 +1512,62 @@ ul, ol { list-style: none; }
       giftAmount: 47760,
       giftOrders: 359
     },
-    buildDailyTrend: buildDailyTrend
+    buildMonthlyTrend: buildMonthlyTrend
   };
 
-  // ---------- 每日线索趋势（确定性生成，总和与权威KPI对齐） ----------
-  // 生成最近30天的日度线索数据，按活动筛选等比缩放
-  function buildDailyTrend(activity) {
-    var TOTAL_ALL = 648;
-    var DAYS = 30;
-    // 基准日：2026-08-26
-    var baseDate = new Date(2026, 7, 26);
+  // ---------- 月度线索趋势（按活动分类，确定性生成，总和与权威KPI对齐） ----------
+  // 5个月：2026-04 ~ 2026-08，4个活动分类
+  function buildMonthlyTrend() {
+    var MONTHS = ['2026-04', '2026-05', '2026-06', '2026-07', '2026-08'];
+    // 各活动权威总量
+    var ACT_TOTALS = {
+      '千元礼包': 359,
+      '内部专场讲座': 136,
+      '省份志愿群': 88,
+      '小课系列活动': 65
+    };
+    var ACT_NAMES = ['千元礼包', '内部专场讲座', '省份志愿群', '小课系列活动'];
 
-    // 用确定性伪随机生成30天的权重
-    var weights = [];
-    var wSum = 0;
-    for (var i = 0; i < DAYS; i++) {
-      // 模拟真实节奏：工作日高、周末低，叠加波动
-      var d = new Date(baseDate);
-      d.setDate(d.getDate() - (DAYS - 1 - i));
-      var dow = d.getDay(); // 0=Sun
-      var base = (dow === 0 || dow === 6) ? 0.5 : 1.0;
-      // 确定性扰动
-      var jitter = 0.7 + hash01('trend|' + i) * 0.6;
-      // 近期略有上升趋势
-      var trend = 0.85 + (i / DAYS) * 0.3;
-      var w = base * jitter * trend;
-      weights.push(w);
-      wSum += w;
-    }
+    // 各活动的月度分布权重（确定性，模拟不同活动节奏差异）
+    // 千元礼包：逐月上升（暑期加大投入）
+    // 内部专场讲座：前期高，后期回落
+    // 省份志愿群：中间月份突出（高考季）
+    // 小课系列活动：相对平稳，略有波动
+    var MONTH_WEIGHTS = {
+      '千元礼包':     [0.10, 0.15, 0.20, 0.25, 0.30],
+      '内部专场讲座': [0.28, 0.25, 0.20, 0.15, 0.12],
+      '省份志愿群':   [0.10, 0.18, 0.30, 0.25, 0.17],
+      '小课系列活动': [0.18, 0.22, 0.20, 0.22, 0.18]
+    };
 
-    // 计算目标总量
-    var target = TOTAL_ALL;
-    if (activity && activity !== 'ALL') {
-      var act = ACTIVITIES.find(function (a) { return a.name === activity; });
-      if (act) target = act.orders;
-    }
+    var result = {};
+    ACT_NAMES.forEach(function (actName) {
+      var total = ACT_TOTALS[actName];
+      var weights = MONTH_WEIGHTS[actName];
+      var wSum = 0;
+      for (var i = 0; i < weights.length; i++) wSum += weights[i];
 
-    // 分配并取整，确保总和精确等于target
-    var dates = [], values = [], allocated = 0;
-    for (var j = 0; j < DAYS; j++) {
-      var dt = new Date(baseDate);
-      dt.setDate(dt.getDate() - (DAYS - 1 - j));
-      var mm = dt.getMonth() + 1;
-      var dd = dt.getDate();
-      dates.push((mm < 10 ? '0' + mm : mm) + '-' + (dd < 10 ? '0' + dd : dd));
-
-      var v;
-      if (j === DAYS - 1) {
-        v = target - allocated;
-      } else {
-        v = Math.round(target * weights[j] / wSum);
+      var values = [];
+      var allocated = 0;
+      for (var j = 0; j < MONTHS.length; j++) {
+        var v;
+        if (j === MONTHS.length - 1) {
+          v = total - allocated;
+        } else {
+          v = Math.round(total * weights[j] / wSum);
+        }
+        values.push(Math.max(0, v));
+        allocated += Math.max(0, v);
       }
-      values.push(Math.max(0, v));
-      allocated += Math.max(0, v);
-    }
+      result[actName] = values;
+    });
 
-    return { dates: dates, values: values };
+    return { months: MONTHS, series: result };
   }
 })(window);
 
+</script>
+    <script>
 /**
  * ECharts 图表模块：地图 / 活动排行 / 桑基图 / 组合图 / 城市 Top
  * 所有图表实例通过 DashboardCharts 命名空间暴露给 app.js。
@@ -1750,7 +1745,8 @@ ul, ol { list-style: none; }
               var n = (p.name || '').replace(/(省|市|自治区|壮族|回族|维吾尔|特别行政区)/g, '');
               var v = p.value;
               if (!v && v !== 0) return n;
-              return n + '\n' + v;
+              return n + '
+' + v;
             }
           },
           itemStyle: {
@@ -2415,7 +2411,8 @@ ul, ol { list-style: none; }
             fontFamily: 'DIN Alternate',
             formatter: function (p) {
               var pct = total > 0 ? (p.value / total * 100).toFixed(1) : '0.0';
-              return p.name + '\n' + pct + '%';
+              return p.name + '
+' + pct + '%';
             }
           },
           labelLine: {
@@ -2444,79 +2441,89 @@ ul, ol { list-style: none; }
   function createTrendChart(dom) {
     var chart = echarts.init(dom);
 
-    function buildOption(activity) {
-      var trend = DashboardData.buildDailyTrend(activity);
+    var LINE_CONFIG = [
+      { name: '千元礼包',    color: '#FFD700' },
+      { name: '内部专场讲座', color: '#00A3FF' },
+      { name: '省份志愿群',   color: '#00D68F' },
+      { name: '小课系列活动', color: '#A97BFF' }
+    ];
+
+    function buildOption() {
+      var trend = DashboardData.buildMonthlyTrend();
+
+      var series = LINE_CONFIG.map(function (cfg) {
+        return {
+          name: cfg.name,
+          type: 'line',
+          data: trend.series[cfg.name] || [],
+          smooth: false,
+          symbol: 'circle',
+          symbolSize: 6,
+          showSymbol: true,
+          lineStyle: { color: cfg.color, width: 2.5 },
+          itemStyle: { color: cfg.color, borderWidth: 0 },
+          emphasis: {
+            itemStyle: { color: cfg.color, borderColor: '#fff', borderWidth: 2 },
+            focus: 'series'
+          },
+          z: cfg.name === '千元礼包' ? 10 : 5
+        };
+      });
+
       return {
         animationDuration: 800,
         animationEasing: 'cubicOut',
-        grid: { left: 6, right: 10, top: 16, bottom: 24, containLabel: true },
+        grid: { left: 8, right: 12, top: 36, bottom: 24, containLabel: true },
+        legend: {
+          top: 2,
+          right: 4,
+          itemWidth: 14,
+          itemHeight: 3,
+          itemGap: 10,
+          textStyle: { color: '#8AA8C8', fontSize: 10 },
+          icon: 'roundRect'
+        },
         tooltip: {
           trigger: 'axis',
-          backgroundColor: 'rgba(11,26,48,0.92)',
+          backgroundColor: 'rgba(11,26,48,0.95)',
           borderColor: 'rgba(0,163,255,0.3)',
           borderWidth: 1,
           textStyle: { color: '#E6F4FF', fontSize: 12 },
           formatter: function (params) {
             if (!params || !params.length) return '';
-            var p = params[0];
-            return '<div style="font-weight:600;margin-bottom:4px;">' + p.name + '</div>'
-              + '<div style="color:#8AA8C8;">线索数：<b style="color:#00A3FF;font-family:DIN Alternate;">' + p.value + ' 条</b></div>';
+            var html = '<div style="font-weight:600;margin-bottom:6px;">' + params[0].name + '</div>';
+            params.forEach(function (p) {
+              html += '<div style="display:flex;align-items:center;gap:6px;line-height:1.8;">'
+                + '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + p.color + ';"></span>'
+                + '<span style="color:#8AA8C8;">' + p.seriesName + '</span>'
+                + '<b style="color:#fff;font-family:DIN Alternate;margin-left:auto;">' + p.value + ' 条</b>'
+                + '</div>';
+            });
+            return html;
           }
         },
         xAxis: {
           type: 'category',
-          data: trend.dates,
+          data: trend.months,
           boundaryGap: false,
-          axisLine: { lineStyle: { color: 'rgba(0,163,255,0.2)' } },
+          axisLine: { lineStyle: { color: 'rgba(0,163,255,0.15)' } },
           axisTick: { show: false },
-          axisLabel: {
-            color: '#5C7595',
-            fontSize: 9,
-            interval: function (i) { return i % 5 === 0; }
-          }
+          axisLabel: { color: '#5C7595', fontSize: 10 }
         },
         yAxis: {
           type: 'value',
           axisLine: { show: false },
           axisTick: { show: false },
-          splitLine: { lineStyle: { color: 'rgba(0,163,255,0.08)', type: 'dashed' } },
+          splitLine: { show: false },
           axisLabel: { color: '#5C7595', fontSize: 9 }
         },
-        series: [{
-          type: 'line',
-          data: trend.values,
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 4,
-          showSymbol: false,
-          lineStyle: {
-            color: '#00A3FF',
-            width: 2,
-            shadowColor: 'rgba(0,163,255,0.4)',
-            shadowBlur: 8
-          },
-          itemStyle: { color: '#00A3FF' },
-          areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(0,163,255,0.25)' },
-              { offset: 1, color: 'rgba(0,163,255,0.02)' }
-            ])
-          },
-          emphasis: {
-            itemStyle: { color: '#00A3FF', borderColor: '#fff', borderWidth: 2 },
-            focus: 'series'
-          }
-        }]
+        series: series
       };
     }
 
-    function render(data) {
-      // data 是 aggregate 结果，但我们用 activity 状态来查
-      // 这里 data 不含 activity 信息，通过外部传入
-      chart.setOption(buildOption(render._activity || 'ALL'), true);
+    function render() {
+      chart.setOption(buildOption(), true);
     }
-    render.setActivity = function (act) { render._activity = act; };
-    render._activity = 'ALL';
 
     return { chart: chart, render: render };
   }
@@ -2541,6 +2548,8 @@ ul, ol { list-style: none; }
   };
 })(window);
 
+</script>
+    <script>
 /**
  * 驾驶舱主入口：
  *  - 初始化所有 ECharts 实例
@@ -2719,8 +2728,7 @@ ul, ol { list-style: none; }
     state.charts.combo.render(data);
     state.charts.city.render(data);
     state.charts.gmvDonut.render(data);
-    state.charts.trend.render.setActivity(state.activity);
-    state.charts.trend.render(data);
+    state.charts.trend.render();
   }
 
   // ---------- 绑定交互 ----------
