@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>高顿升学 · 移动端引流数据看板</title>
@@ -594,7 +593,10 @@ ul, ol { list-style: none; }
   gap: var(--gap);
   min-height: 0;
 }
-.trend-col{display:grid;min-height:0}
+.trend-col {
+  display: grid;
+  min-height: 0;
+}
 .right-col {
   display: grid;
   grid-template-rows: 1fr 1fr;
@@ -711,7 +713,8 @@ ul, ol { list-style: none; }
   color: var(--gold);
 }
 
-    </style>
+</style>
+    <!-- ECharts: 使用国内可达的 jsdelivr 镜像 -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
   </head>
   <body>
@@ -733,7 +736,6 @@ ul, ol { list-style: none; }
             <button class="filter-btn filter-btn--gold" data-activity="千元礼包" role="tab">
               <span class="star-gold">★</span>千元礼包
             </button>
-
           </div>
         </div>
 
@@ -800,7 +802,31 @@ ul, ol { list-style: none; }
           </div>
           <div class="kpi-card__sub">占总成交额 <b id="giftRatio">51.3%</b></div>
         </div>
-            
+            </div>
+
+      <div class="gmv-row" id="gmvRow">
+        <div class="gmv-tag" data-activity="ALL" role="button">
+          <span class="gmv-tag__label">全部活动</span>
+          <span class="gmv-tag__value" id="gmvAll">¥0</span>
+        </div>
+        <div class="gmv-tag gmv-tag--gold" data-activity="千元礼包" role="button">
+          <span class="gmv-tag__star">★</span>
+          <span class="gmv-tag__label">千元礼包</span>
+          <span class="gmv-tag__value gmv-tag__value--gold" id="gmvGift">¥0</span>
+        </div>
+        <div class="gmv-tag" data-activity="内部专场讲座" role="button">
+          <span class="gmv-tag__label">内部专场讲座</span>
+          <span class="gmv-tag__value" id="gmvLecture">¥0</span>
+        </div>
+        <div class="gmv-tag" data-activity="省份志愿群" role="button">
+          <span class="gmv-tag__label">省份志愿群</span>
+          <span class="gmv-tag__value" id="gmvProvince">¥0</span>
+        </div>
+        <div class="gmv-tag" data-activity="小课系列活动" role="button">
+          <span class="gmv-tag__label">小课系列活动</span>
+          <span class="gmv-tag__value" id="gmvMini">¥0</span>
+        </div>
+      
     
         </div>
 </section>
@@ -809,7 +835,7 @@ ul, ol { list-style: none; }
 
       <!-- 主内容区 -->
       
-      <!-- 活动分类 GMV 环形图 -->
+      <!-- 活动分类 GMV 柱状图 -->
 
       <section class="main-grid">
         <!-- 左：线索趋势 -->
@@ -934,14 +960,8 @@ ul, ol { list-style: none; }
       </section>
     </div>
 
-    <!-- 内嵌脚本：china-geo + data + charts + app（自包含版本） -->
-    
-    
-    
-    
-
-
-<script>
+    <!-- 顺序加载脚本：china-geo.js 必须在 charts.js 之前（提供内嵌中国地图 GeoJSON） -->
+    <script>
 /**
  * 中国省级行政区划 GeoJSON（内嵌，避免远程依赖/Referer ACL）
  * 数据来源：DataV.GeoAtlas（areas_v3/bound/100000_full.json）
@@ -952,7 +972,7 @@ ul, ol { list-style: none; }
 })(window);
 
 </script>
-<script>
+    <script>
 // Province-level GeoJSON data for map drill-down
 // Source: Alibaba DataV (geo.datav.aliyun.com)
 (function(global) {
@@ -996,7 +1016,9 @@ ul, ol { list-style: none; }
 })(window);
 
 </script>
-<script>
+    
+    
+    <script>
 /**
  * 高顿高报 · 引流数据驾驶舱 - 内嵌数据模块
  * 所有数据均为预聚合结果，运行时不依赖任何后端接口。
@@ -2322,7 +2344,7 @@ ul, ol { list-style: none; }
   }
 
   // ============================================================
-  // 6. 活动分类 GMV 环形图
+  // 6. 活动分类 GMV 柱状图
   // ============================================================
   function createGmvDonutChart(dom) {
     const chart = echarts.init(dom);
@@ -2824,5 +2846,5 @@ ul, ol { list-style: none; }
 })();
 
 </script>
-</body>
+  </body>
 </html>
